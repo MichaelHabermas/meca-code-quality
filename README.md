@@ -20,17 +20,17 @@ CodeScope is a powerful JavaScript and TypeScript code quality analysis tool tha
 
 ### npm
 ```bash
-npm install codescope --save-dev
+npm install meca-code-quality --save-dev
 ```
 
 ### Yarn
 ```bash
-yarn add codescope -D
+yarn add meca-code-quality -D
 ```
 
 ## 📝 Configuration
 
-Create a `codescope.config.js` in your project root:
+Create a `meca-code-quality.config.js` in your project root:
 
 ```javascript
 module.exports = {
@@ -62,19 +62,19 @@ module.exports = {
 
 ```bash
 # Run basic analysis
-npx codescope
+npx meca-code-quality
 
 # Generate detailed report
-npx codescope --report
+npx meca-code-quality --report
 
 # Specify custom config
-npx codescope --config custom-config.js
+npx meca-code-quality --config custom-config.js
 ```
 
 ## 📂 Project Structure
 
 ```
-codescope/
+meca-code-quality/
 │
 ├── bin/                # CLI executable
 ├── lib/                # Core library code
@@ -88,21 +88,6 @@ codescope/
 │
 ├── codescope.config.js # Default configuration file
 └── package.json
-```
-
-## 🔧 Customization
-
-### Extending File Type Detection
-You can add custom file type detectors by extending the base analyzer:
-
-```javascript
-const { FileAnalyzer } = require('codescope');
-
-class CustomFileAnalyzer extends FileAnalyzer {
-  detectFileType(file) {
-    // Custom file type detection logic
-  }
-}
 ```
 
 ## 📊 Sample Report Output
