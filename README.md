@@ -1,8 +1,8 @@
-# 📊 CodeScope: Comprehensive Code Quality Analyzer 🔍
+# 📊 Meca-Code-Quality: Comprehensive Code Quality Analyzer 🔍
 
 ## 🌟 Overview
 
-CodeScope is a powerful JavaScript and TypeScript code quality analysis tool that provides deep insights into your project's codebase. It offers:
+Meca-Code-Quality is a powerful JavaScript and TypeScript code quality analysis tool that provides deep insights into your project's codebase. It offers:
 - File type counting
 - ESLint integration
 - Markdown report generation
@@ -86,7 +86,6 @@ meca-code-quality/
 ├── config/             # Default configurations
 ├── tests/              # Package test suites
 │
-├── codescope.config.js # Default configuration file
 └── package.json
 ```
 
@@ -110,8 +109,3 @@ The generated markdown report includes:
 ## 🛡️ License
 
 Distributed under the MIT License. See `LICENSE` for more information.
-
-## 📞 Contact
-
-Your Name - [@YourTwitter](https://twitter.com/yourtwitter)
-Project Link: [https://github.com/yourusername/codescope](https://github.com/yourusername/codescope)
