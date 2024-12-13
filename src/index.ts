@@ -1,3 +1,3 @@
 import { codeQualityRunner } from './codeQualityRunner.cjs';
 
-module.exports = codeQualityRunner
+module.exports = codeQualityRunner;
