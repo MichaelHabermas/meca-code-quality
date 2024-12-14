@@ -299,7 +299,7 @@ function eslintReporter(): void {
     console.log('No ESLint config found.');
     try {
       console.log('Re-Running ESLint...');
-      const eslintOutput: string = execSync(`cd ${ROOT_DIR} && touch .eslintrc && npx eslint . --format json --config .eslintrc`, { encoding: 'utf-8' });
+      const eslintOutput: string = execSync(`cd ${ROOT_DIR} && touch .eslintrc && npx eslint . --config ./.eslintrc --format json`, { encoding: 'utf-8' });
 
       formatEslintOutputToMarkdown(eslintOutput);
     } catch (error: any) {
