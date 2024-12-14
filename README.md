@@ -4,9 +4,11 @@
 
 Meca-Code-Quality is a powerful JavaScript and TypeScript code quality analysis tool that provides deep insights into your project's codebase. It offers:
 - File type counting
-- ESLint integration
 - Markdown report generation
 - Comprehensive project structure analysis
+- Basic ESLint analysis (COMING SOON)
+- Basic StyleLint analysis (COMING SOON)
+- Basic Strict Mode analysis (COMING SOON)
 
 ## 🚀 Features
 
@@ -28,32 +30,9 @@ npm install meca-code-quality --save-dev
 yarn add meca-code-quality -D
 ```
 
-## 📝 Configuration
-
-Create a `meca-code-quality.config.js` in your project root:
-
-```javascript
-module.exports = {
-  // Directories to scan
-  directories: ['src', 'lib'],
-  
-  // File extensions to analyze
-  extensions: ['.js', '.ts', '.jsx', '.tsx'],
-  
-  // ESLint configuration
-  eslintConfig: {
-    extends: ['eslint:recommended', 'plugin:react/recommended'],
-    rules: {
-      // Custom ESLint rules
-    }
-  },
-  
-  // Report generation settings
-  report: {
-    format: 'markdown',
-    outputPath: './codequality-report.md'
-  }
-}
+### Run From Command Line
+```bash
+npx meca-code-quality "{put full path to local repo/folder here, no curly braces}"
 ```
 
 ## 💻 Usage
@@ -62,41 +41,23 @@ module.exports = {
 
 ```bash
 # Run basic analysis
-npx meca-code-quality
-
-# Generate detailed report
-npx meca-code-quality --report
-
-# Specify custom config
 npx meca-code-quality --config custom-config.js
-```
-
-## 📂 Project Structure
-
-```
-meca-code-quality/
-│
-├── bin/                # CLI executable
-├── lib/                # Core library code
-│   ├── analyzers/      # File type and code quality analyzers
-│   ├── reporters/      # Report generation modules
-│   └── utils/          # Utility functions
-│
-├── templates/          # Report templates
-├── config/             # Default configurations
-├── tests/              # Package test suites
-│
-└── package.json
 ```
 
 ## 📊 Sample Report Output
 
 The generated markdown report includes:
-- Total number of files
+- Total number of files (js/jsx, ts/tsx, css/sass/scss/less, other styling files (ex. .style.js))
 - File type distribution
-- ESLint violation summary
-- Complexity metrics
-- Potential improvement suggestions
+- ESLint violations summary (COMING SOON)
+- StyleLint violations summary (COMING SOON)
+- Strict Mode violations summary (COMING SOON)
+- Complexity metrics - number of:
+  - !important usages
+  - margin usages
+  - useRefs
+  - inline styles
+  - RxJs Subscriptions
 
 ## 🤝 Contributing
 
