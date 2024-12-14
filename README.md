@@ -30,22 +30,17 @@ npm install meca-code-quality --save-dev
 yarn add meca-code-quality -D
 ```
 
-### Run From Command Line
-```bash
-npx meca-code-quality "{put full path to local repo/folder here, no curly braces}"
-```
-
 ## 💻 Usage
 
 ### CLI Commands
 
 ```bash
-# Run basic analysis
-npx meca-code-quality --config custom-config.js
+npx meca-code-quality "{put full path to local repo/folder here, no curly braces}"
 ```
 
 ## 📊 Sample Report Output
 
+![img.png](img.png)
 The generated markdown report includes:
 - Total number of files (js/jsx, ts/tsx, css/sass/scss/less, other styling files (ex. .style.js))
 - File type distribution
