@@ -1,6 +1,6 @@
 {
   "name": "meca-code-quality",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "description": "Create a report on the current state of your code.",
   "bin": {
     "meca-code-quality": "dist/index.js"

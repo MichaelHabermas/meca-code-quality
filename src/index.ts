@@ -292,12 +292,20 @@ function formatFileIssuesToMarkdown(codeQualityJson: ICounter): void {
 function eslintReporter(): void {
   try {
     console.log('Running ESLint...');
-    const eslintOutput: string = execSync(`cd ${ROOT_DIR} && npx eslint . --format json`, { encoding: 'utf-8' });
+    const eslintOutput: string = execSync(`cd ${ROOT_DIR} && npx eslint . --format json `, { encoding: 'utf-8' });
 
     formatEslintOutputToMarkdown(eslintOutput);
   } catch (error: any) {
-    console.error('An error occurred:', error.message);
-    process.exit(1);
+    console.error('No ESLint config found:', error.message);
+    try {
+      console.log('Running ESLint...');
+      const eslintOutput: string = execSync(`cd ${ROOT_DIR} && touch .eslintrc && npx eslint . --format json --config .eslintrc`, { encoding: 'utf-8' });
+
+      formatEslintOutputToMarkdown(eslintOutput);
+    } catch (error: any) {
+      console.error('An error occurred:', error.message);
+      process.exit(1);
+    }
   }
 }
 
@@ -328,7 +336,7 @@ function codeQualityRunner(fullPathRootDir?: string): void {
     console.log('Running npm install...');
     execSync(`cd ${ROOT_DIR} && npm install`, { stdio: 'inherit' });
 
-    // eslintReporter();
+    eslintReporter();
     traverseFilesAndFoldersForIssues(ROOT_DIR);
     generateFullReport();
 
