@@ -258,8 +258,8 @@ function formatFileIssuesToMarkdown(codeQualityJson: ICounter): void {
     markdownContent += `- **Total .ts & .tsx Files**: ${fileCounter['.tsx'] + fileCounter['.ts']}\n`;
     markdownContent += `- **Total .ts & .tsx File Lines**: ${filesLinesCounter.ts_lines}\n`;
     // css, sass, scss, less
-    markdownContent += `- **Total Styling Files**: ${filesLinesCounter.css_lines}\n`;
-    markdownContent += `- **Total Styling Lines**: ${filesLinesCounter.ts_lines}\n`;
+    markdownContent += `- **Total Styling Files**: ${fileCounter['.css'] + fileCounter['.less'] + fileCounter['.sass'] + fileCounter['.scss']}\n`;
+    markdownContent += `- **Total Styling Lines**: ${filesLinesCounter.css_lines}\n`;
     // other styling
     markdownContent += `- **Total Other Styling Files**: ${fileCounter.other_style_files}\n`;
     markdownContent += `- **Total Other Styling Lines**: ${filesLinesCounter.other_style_lines}\n\n`;
@@ -296,9 +296,9 @@ function eslintReporter(): void {
 
     formatEslintOutputToMarkdown(eslintOutput);
   } catch (error: any) {
-    console.error('No ESLint config found:', error.message);
+    console.log('No ESLint config found.');
     try {
-      console.log('Running ESLint...');
+      console.log('Re-Running ESLint...');
       const eslintOutput: string = execSync(`cd ${ROOT_DIR} && touch .eslintrc && npx eslint . --format json --config .eslintrc`, { encoding: 'utf-8' });
 
       formatEslintOutputToMarkdown(eslintOutput);
