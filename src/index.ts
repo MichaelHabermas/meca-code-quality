@@ -1,10 +1,31 @@
+#!/usr/bin/env node
+
 import { execSync } from 'child_process';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as ts from 'typescript';
 // import * as stylelint from 'stylelint';
 
-export interface IMessage {
+/** Parse the command line */
+const args = process.argv.slice(2);
+
+// Validate input
+if (args.length > 1) {
+  console.log("Warning: Accommodates at most one argument (full path to desired root dir)");
+  process.exit();
+}
+
+const src: string | undefined = args[0];
+// const target = args[1];
+const dirSrc = path.dirname(src);
+console.log('dirsrc', dirSrc)
+
+if (!fs.existsSync(src)) {
+  console.log("Error: Source file doesn't exist. Given: ", src);
+  process.exit();
+}
+
+interface IMessage {
   ruleId: number;
   severity: number;
   line: number;
@@ -12,17 +33,17 @@ export interface IMessage {
   message: string;
 }
 
-export interface IFile {
+interface IFile {
   messages: IMessage[];
   filePath: string;
 }
 
-export type LinesRecord =  Record<'js_lines' | 'ts_lines' | 'css_lines' | 'other_style_lines', number>;
-export type FileCounterRecord =  Record<'.js' | '.jsx' | '.ts' | '.tsx' | '.md' | '.css' | '.scss' | '.sass' | '.less' | '.py' | 'other_style_files', number>;
-export type FileContentRecord =  Record<'!important' | '= useRef' | 'style={' | 'margin:' | '.subscribe(', number>;
-export type Issues =  Record<'strict_mode', number>; // TODO: 'styleLint'
+type LinesRecord =  Record<'js_lines' | 'ts_lines' | 'css_lines' | 'other_style_lines', number>;
+type FileCounterRecord =  Record<'.js' | '.jsx' | '.ts' | '.tsx' | '.md' | '.css' | '.scss' | '.sass' | '.less' | '.py' | 'other_style_files', number>;
+type FileContentRecord =  Record<'!important' | '= useRef' | 'style={' | 'margin:' | '= React.useRef' | '.subscribe(', number>;
+type Issues =  Record<'strict_mode', number>; // TODO: 'styleLint'
 
-export interface ICounter {
+interface ICounter {
   fileCounter: FileCounterRecord;
   filesLinesCounter: LinesRecord;
   filesContentCounter: FileContentRecord;
@@ -30,7 +51,7 @@ export interface ICounter {
 }
 
 
-export const fileCounter: FileCounterRecord = {
+const fileCounter: FileCounterRecord = {
   '.js': 0,
   '.jsx': 0,
   '.ts': 0,
@@ -44,32 +65,33 @@ export const fileCounter: FileCounterRecord = {
   'other_style_files': 0
 }
 
-export const filesLinesCounter: LinesRecord = {
+const filesLinesCounter: LinesRecord = {
   js_lines: 0,
   ts_lines: 0,
   css_lines: 0,
   other_style_lines: 0
 }
 
-export const filesContentCounter: FileContentRecord = {
+const filesContentCounter: FileContentRecord = {
   '!important': 0,
   '= useRef': 0,
+  '= React.useRef': 0,
   'style={': 0,
   'margin:': 0,
   '.subscribe(': 0,
 }
 
-export const problemIssues: Issues = {
+const problemIssues: Issues = {
   strict_mode: 0,
   // styleLint: 0
 }
 
-export const fileCounterKeys = Object.keys(fileCounter);
+const fileCounterKeys = Object.keys(fileCounter);
 
-export const ROOT_DIR = '.';
+let ROOT_DIR = '.';
 
 let markdownContent: string = '# JS / TS Repo Analysis Report\n\n';
-const styleRegex = /\.style\./;
+const styleRegex = /\.style\.(js|jsx|ts|tsx)$/;
 
 // function checkStyleLint(filePath: string): number {
 //   const result = stylelint.lint({ files: filePath, formatter: 'string' });
@@ -154,7 +176,7 @@ function traverseDirectory(currentPath: string): void {
     const stats = fs.statSync(fullPath);
     const extension = path.extname(file) as keyof Omit<FileCounterRecord, 'other_style_files'>;
 
-    if (fullPath.includes('node_modules')) {
+    if (fullPath.includes('node_modules') || fullPath.includes('dist') || fullPath.includes('build')) {
       return;
     } else if (stats.isDirectory()) {
       traverseDirectory(fullPath);
@@ -176,13 +198,15 @@ function traverseDirectory(currentPath: string): void {
         filesLinesCounter.ts_lines += countNonEmptyLines(fullPath);
       } else if (['.css', '.scss', '.sass', '.less'].includes(extension)) {
         filesLinesCounter.css_lines += countNonEmptyLines(fullPath);
-      } else if (fullPath.match(styleRegex)) {
-        fileCounter.other_style_files++
-        filesLinesCounter.other_style_lines += countNonEmptyLines(fullPath);
       }
 
       // count instances of unwanted occurrences
       countOccurrencesToMinimize(fullPath, filesContentCounter);
+    }
+
+    if (fullPath.match(styleRegex)) {
+      fileCounter.other_style_files++
+      filesLinesCounter.other_style_lines += countNonEmptyLines(fullPath);
     }
   });
 }
@@ -245,16 +269,16 @@ function formatFileIssuesToMarkdown(codeQualityJson: ICounter): void {
     // "!important"s
     markdownContent += `- **Total !important Counts**: ${filesContentCounter['!important']}\n`;
     // Ref Counts
-    markdownContent += `- **Total Ref Counts**: ${filesContentCounter['= useRef']}\n`;
+    markdownContent += `- **Total Ref Counts**: ${filesContentCounter['= useRef'] + filesContentCounter['= React.useRef']}\n`;
     // Margin Counts
     markdownContent += `- **Total Margin Counts**: ${filesContentCounter['margin:']}\n`;
     // RxJS Subscriptions
     markdownContent += `- **Total RxJS Subscriptions**: ${filesContentCounter['.subscribe(']}\n`;
     // Inline Styles
-    markdownContent += `- **Total Inline Styles**: ${filesContentCounter['style={']}\n\n`;
-    // Style Lint Issues - TODO
+    markdownContent += `- **Total Inline Styles**: ${filesContentCounter['style={']}\n`;
     // Strict Mode Issues
-    markdownContent += `- **Total Other Styling Files**: ${problemIssues.strict_mode}\n`;
+    markdownContent += `- **Total Files with Strict Mode Issues**: ${problemIssues.strict_mode}\n\n`;
+    // Style Lint Issues - TODO
 
   } catch (error) {
     console.error('Error formatting Code Quality output:', error);
@@ -268,7 +292,7 @@ function formatFileIssuesToMarkdown(codeQualityJson: ICounter): void {
 function eslintReporter(): void {
   try {
     console.log('Running ESLint...');
-    const eslintOutput: string = execSync('npx eslint . --format json', { encoding: 'utf-8' });
+    const eslintOutput: string = execSync(`cd ${ROOT_DIR} && npx eslint . --format json`, { encoding: 'utf-8' });
 
     formatEslintOutputToMarkdown(eslintOutput);
   } catch (error: any) {
@@ -295,12 +319,14 @@ function generateFullReport(): void {
 }
 
 /**
- * Traverses all the files and folders recursively to check the current folder, and outputs a report on the code quality
+ * Traverses all the files and folders recursively to check the current folder, and outputs a report on the code quality.
+ * @param fullPathRootDir
  */
-function codeQualityRunner(): void {
+function codeQualityRunner(fullPathRootDir?: string): void {
   try {
+    ROOT_DIR = fullPathRootDir ?? ROOT_DIR;
     console.log('Running npm install...');
-    execSync('npm install', { stdio: 'inherit' });
+    execSync(`cd ${ROOT_DIR} && npm install`, { stdio: 'inherit' });
 
     eslintReporter();
     traverseFilesAndFoldersForIssues(ROOT_DIR);
@@ -312,4 +338,4 @@ function codeQualityRunner(): void {
   }
 }
 
-export default codeQualityRunner;
+codeQualityRunner(src);
