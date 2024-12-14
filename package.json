@@ -1,6 +1,6 @@
 {
   "name": "meca-code-quality",
-  "version": "1.0.12",
+  "version": "1.0.13",
   "description": "Create a report on the current state of your code.",
   "bin": {
     "meca-code-quality": "dist/index.js"
@@ -14,6 +14,10 @@
   "type": "commonjs",
   "author": "Michael Habermas and Thomas Tarpey",
   "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/MichaelHabermas/meca-code-quality.git"
+  },
   "keywords": [
     "js",
     "jsx",
