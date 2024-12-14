@@ -328,7 +328,7 @@ function codeQualityRunner(fullPathRootDir?: string): void {
     console.log('Running npm install...');
     execSync(`cd ${ROOT_DIR} && npm install`, { stdio: 'inherit' });
 
-    eslintReporter();
+    // eslintReporter();
     traverseFilesAndFoldersForIssues(ROOT_DIR);
     generateFullReport();
 
