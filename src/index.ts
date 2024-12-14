@@ -4,7 +4,7 @@ import { execSync } from 'child_process';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as ts from 'typescript';
-// import * as stylelint from 'stylelint';
+import * as stylelint from 'stylelint';
 
 /** Parse the command line */
 const args = process.argv.slice(2);
@@ -16,15 +16,13 @@ if (args.length > 1) {
 }
 
 const src: string | undefined = args[0];
-// const target = args[1];
-const dirSrc = path.dirname(src);
-console.log('dirsrc', dirSrc)
 
 if (!fs.existsSync(src)) {
   console.log("Error: Source file doesn't exist. Given: ", src);
   process.exit();
 }
 
+/** TYPES **/
 interface IMessage {
   ruleId: number;
   severity: number;
@@ -41,7 +39,7 @@ interface IFile {
 type LinesRecord =  Record<'js_lines' | 'ts_lines' | 'css_lines' | 'other_style_lines', number>;
 type FileCounterRecord =  Record<'.js' | '.jsx' | '.ts' | '.tsx' | '.md' | '.css' | '.scss' | '.sass' | '.less' | '.py' | 'other_style_files', number>;
 type FileContentRecord =  Record<'!important' | '= useRef' | 'style={' | 'margin:' | '= React.useRef' | '.subscribe(', number>;
-type Issues =  Record<'strict_mode', number>; // TODO: 'styleLint'
+type Issues =  Record<'strict_mode', number>; // TODO: add 'styleLint'
 
 interface ICounter {
   fileCounter: FileCounterRecord;
@@ -51,6 +49,7 @@ interface ICounter {
 }
 
 
+/** COUNTER OBJECTS **/
 const fileCounter: FileCounterRecord = {
   '.js': 0,
   '.jsx': 0,
@@ -83,53 +82,63 @@ const filesContentCounter: FileContentRecord = {
 
 const problemIssues: Issues = {
   strict_mode: 0,
-  // styleLint: 0
+  // styleLint: 0 // TODO: add later
 }
 
+
+/** VARIABLES **/
 const fileCounterKeys = Object.keys(fileCounter);
-
 let ROOT_DIR = '.';
-
 let markdownContent: string = '# JS / TS Repo Analysis Report\n\n';
 const styleRegex = /\.style\.(js|jsx|ts|tsx)$/;
 
-// function checkStyleLint(filePath: string): number {
-//   const result = stylelint.lint({ files: filePath, formatter: 'string' });
+/** METHODS **/
+
+/**
+ * Counts the number of StyleLint problems/issues.
+ * TODO: Get this working GENERALLY, or add a flag to enable.
+ * TODO: change this so it runs once for the whole repo.
+ * @param filePath
+ */
+// async function checkStyleLint(filePath: string): Promise<number> {
+//   const result = await stylelint.lint({ files: filePath, formatter: 'string' });
 //
 //   if (result.errored) {
-//     return result.output.split('\n').length - 1; // Subtract 1 for the final newline
+//     return result.report.split('\n').length - 1; // Subtract 1 for the final newline
 //   }
 //
 //   return 0;
 // }
 
 /**
- * Counts the number of strict mode problemIssues.
+ * Counts the number of strict mode problems/issues.
+ * TODO: Get this working GENERALLY, or add a flag to enable.
+ * TODO: change this so it runs once for the whole repo.
  * @param filePath
  */
-function checkStrictMode(filePath: string): number {
-  try {
-    const sourceFile = ts.createSourceFile(
-      filePath,
-      fs.readFileSync(filePath, 'utf8'),
-      ts.ScriptTarget.Latest,
-      true
-    );
-
-    if (!sourceFile) {
-      console.error(`Failed to create source file for ${filePath}`);
-      return 0;
-    }
-
-    const program = ts.createProgram([filePath], {});
-    const diagnostics = ts.getPreEmitDiagnostics(program, sourceFile);
-
-    return diagnostics.filter(({ category, code }) => category === ts.DiagnosticCategory.Error && code >= 2300 && code <= 2700).length;
-  } catch (error) {
-    console.error(`Error checking Strict Mode for ${filePath}: ${error}`);
-    return 0;
-  }
-}
+// function checkStrictMode(filePath: string): number {
+//   try {
+//     const sourceFile = ts.createSourceFile(
+//       filePath,
+//       fs.readFileSync(filePath, 'utf8'),
+//       ts.ScriptTarget.Latest,
+//       true
+//     );
+//
+//     if (!sourceFile) {
+//       console.error(`Failed to create source file for ${filePath}`);
+//       return 0;
+//     }
+//
+//     const program = ts.createProgram([filePath], {});
+//     const diagnostics = ts.getPreEmitDiagnostics(program, sourceFile);
+//
+//     return diagnostics.filter(({ category, code }) => category === ts.DiagnosticCategory.Error && code >= 2300 && code <= 2700).length;
+//   } catch (error) {
+//     console.error(`Error checking Strict Mode for ${filePath}: ${error}`);
+//     return 0;
+//   }
+// }
 
 /**
  * Counts number of non-empty lines in a file.
@@ -183,10 +192,12 @@ function traverseDirectory(currentPath: string): void {
     } else if (stats.isFile() && fileCounterKeys.includes(extension)) {
       fileCounter[extension]++;
 
-      if (['.js', '.jsx', '.ts', '.tsx'].includes(extension)) {
-        problemIssues.strict_mode += checkStrictMode(fullPath);
-      }
+      console.log('Strict Mode check skipped.');
+      // if (['.js', '.jsx', '.ts', '.tsx'].includes(extension)) {
+      //   problemIssues.strict_mode += checkStrictMode(fullPath);
+      // }
 
+      console.log('StyleLint check skipped.');
       // if (['.css', '.scss', '.sass', '.less'].includes(extension)) {
       //   problemIssues.styleLint += checkStyleLint(fullPath);
       // }
@@ -288,6 +299,7 @@ function formatFileIssuesToMarkdown(codeQualityJson: ICounter): void {
 
 /**
  * Runs eslint on the repo and adds results to the markdown results report.
+ * TODO: Get this working GENERALLY, or add a flag to enable.
  */
 function eslintReporter(): void {
   try {
@@ -336,7 +348,8 @@ function codeQualityRunner(fullPathRootDir?: string): void {
     console.log('Running npm install...');
     execSync(`cd ${ROOT_DIR} && npm install`, { stdio: 'inherit' });
 
-    eslintReporter();
+    console.log('ESLint check skipped.');
+    // eslintReporter();
     traverseFilesAndFoldersForIssues(ROOT_DIR);
     generateFullReport();
 

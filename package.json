@@ -1,24 +1,45 @@
 {
   "name": "meca-code-quality",
-  "version": "1.0.10",
+  "version": "1.0.11",
   "description": "Create a report on the current state of your code.",
   "bin": {
     "meca-code-quality": "dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "prepare": "npm run build"
   },
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "type": "commonjs",
   "author": "Michael Habermas and Thomas Tarpey",
   "license": "ISC",
-  "keywords": ["js", "jsx", "ts", "tsx", "code quality", "file count", "eslint", "refs", "RxJs"],
-  "scripts": {
-    "build": "tsc",
-    "prepare": "npm run build"
-  },
-  "dependencies": {},
+  "keywords": [
+    "js",
+    "jsx",
+    "ts",
+    "tsx",
+    "code quality",
+    "file count",
+    "eslint",
+    "stylelint",
+    "strict mode",
+    "refs",
+    "useRef",
+    "RxJs"
+  ],
   "devDependencies": {
+    "@eslint/js": "^9.17.0",
     "@types/node": "^22.10.2",
-    "typescript": "^5.7.2"
+    "eslint": "^9.17.0",
+    "globals": "^15.13.0",
+    "stylelint": "^16.11.0",
+    "stylelint-config-standard": "^36.0.1",
+    "stylelint-config-standard-scss": "^14.0.0",
+    "typescript": "^5.7.2",
+    "typescript-eslint": "^8.18.0"
   },
-  "files": ["dist"]
+  "files": [
+    "dist"
+  ]
 }
