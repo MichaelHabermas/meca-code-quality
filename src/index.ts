@@ -3,8 +3,9 @@
 import { execSync } from 'child_process';
 import * as fs from 'fs';
 import * as path from 'path';
-import * as ts from 'typescript';
-import * as stylelint from 'stylelint';
+// import * as ts from 'typescript';
+// import * as stylelint from 'stylelint';
+import { ESLint } from 'eslint';
 
 /** Parse the command line */
 const args = process.argv.slice(2);
@@ -87,6 +88,7 @@ const problemIssues: Issues = {
 
 
 /** VARIABLES **/
+
 const fileCounterKeys = Object.keys(fileCounter);
 let ROOT_DIR = '.';
 let markdownContent: string = '# JS / TS Repo Analysis Report\n\n';
@@ -98,45 +100,49 @@ const styleRegex = /\.style\.(js|jsx|ts|tsx)$/;
  * Counts the number of StyleLint problems/issues.
  * TODO: Get this working GENERALLY, or add a flag to enable.
  * TODO: change this so it runs once for the whole repo.
- * @param filePath
  */
-// async function checkStyleLint(filePath: string): Promise<number> {
-//   const result = await stylelint.lint({ files: filePath, formatter: 'string' });
+// async function checkStyleLint(): Promise<void> {
+//   // at end, make the rest a scoped function?
+//   const strictModeOutput: string = execSync(`cd ${ROOT_DIR} && npx eslint . --config ./.eslintrc --format json`, { encoding: 'utf-8' });
 //
+//   const result = await stylelint.lint({ files: ROOT_DIR, formatter: 'string' });
+//   console.log('checkStyleLint', result);
 //   if (result.errored) {
-//     return result.report.split('\n').length - 1; // Subtract 1 for the final newline
+//     // problemIssues.styleLint += result.report.split('\n').length - 1; // Subtract 1 for the final newline
 //   }
 //
-//   return 0;
+//   // problemIssues.styleLint += result.results.length;
 // }
 
 /**
  * Counts the number of strict mode problems/issues.
  * TODO: Get this working GENERALLY, or add a flag to enable.
  * TODO: change this so it runs once for the whole repo.
- * @param filePath
  */
-// function checkStrictMode(filePath: string): number {
+// function checkStrictMode(): void {
+//   // at end, make the rest a scoped function?
+//   const strictModeOutput: string = execSync(`cd ${ROOT_DIR} && npx eslint . --config ./.eslintrc --format json`, { encoding: 'utf-8' });
+//
 //   try {
 //     const sourceFile = ts.createSourceFile(
-//       filePath,
-//       fs.readFileSync(filePath, 'utf8'),
+//       ROOT_DIR,
+//       fs.readFileSync(ROOT_DIR, 'utf8'),
 //       ts.ScriptTarget.Latest,
 //       true
 //     );
 //
 //     if (!sourceFile) {
-//       console.error(`Failed to create source file for ${filePath}`);
-//       return 0;
+//       console.error(`Failed to create source file for ${ROOT_DIR}`);
+//       problemIssues.strict_mode += 0;
+//       return;
 //     }
 //
-//     const program = ts.createProgram([filePath], {});
+//     const program = ts.createProgram([ROOT_DIR], {});
 //     const diagnostics = ts.getPreEmitDiagnostics(program, sourceFile);
 //
-//     return diagnostics.filter(({ category, code }) => category === ts.DiagnosticCategory.Error && code >= 2300 && code <= 2700).length;
+//     problemIssues.strict_mode += diagnostics.filter(({ category, code }) => category === ts.DiagnosticCategory.Error && code >= 2300 && code <= 2700).length;
 //   } catch (error) {
-//     console.error(`Error checking Strict Mode for ${filePath}: ${error}`);
-//     return 0;
+//     console.error(`Error checking Strict Mode for ${ROOT_DIR}: ${error}`);
 //   }
 // }
 
@@ -160,7 +166,7 @@ function countNonEmptyLines(filePath: string): number {
 
 /**
  * Counts occurrences of certain code uses that should be minimized
- * Currently counted: !importants, useRefs, inline styles, margins, and RxJS subscriptions
+ * Currently counted: !important, useRef, inline styles, margins, and RxJS subscriptions
  * @param filePath
  * @param counter
  */
@@ -191,16 +197,6 @@ function traverseDirectory(currentPath: string): void {
       traverseDirectory(fullPath);
     } else if (stats.isFile() && fileCounterKeys.includes(extension)) {
       fileCounter[extension]++;
-
-      console.log('Strict Mode check skipped.');
-      // if (['.js', '.jsx', '.ts', '.tsx'].includes(extension)) {
-      //   problemIssues.strict_mode += checkStrictMode(fullPath);
-      // }
-
-      console.log('StyleLint check skipped.');
-      // if (['.css', '.scss', '.sass', '.less'].includes(extension)) {
-      //   problemIssues.styleLint += checkStyleLint(fullPath);
-      // }
 
       // Count lines
       if (['.js', '.jsx'].includes(extension)) {
@@ -288,8 +284,9 @@ function formatFileIssuesToMarkdown(codeQualityJson: ICounter): void {
     // Inline Styles
     markdownContent += `- **Total Inline Styles**: ${filesContentCounter['style={']}\n`;
     // Strict Mode Issues
-    markdownContent += `- **Total Files with Strict Mode Issues**: ${problemIssues.strict_mode}\n\n`;
+    // markdownContent += `- **Total Files with Strict Mode Issues**: ${problemIssues.strict_mode}\n\n`;
     // Style Lint Issues - TODO
+
 
   } catch (error) {
     console.error('Error formatting Code Quality output:', error);
@@ -301,23 +298,148 @@ function formatFileIssuesToMarkdown(codeQualityJson: ICounter): void {
  * Runs eslint on the repo and adds results to the markdown results report.
  * TODO: Get this working GENERALLY, or add a flag to enable.
  */
+// function eslintReporter(): void {
+//     console.log('Running ESLint...');
+//   // const eslintOutput: string = execSync(`cd ${ROOT_DIR} && npx eslint . --format json`, { encoding: 'utf-8' });
+//   // const eslintOutput: string = execSync('npm run lint', { encoding: 'utf-8' });
+//
+//   try {
+//     console.log(execSync(`pwd`, { encoding: 'utf-8' }));
+//     const eslintOutput = execSync('npm run lint', { encoding: 'utf-8' }).toString();
+//     // ... use eslintOutput
+//
+//     console.log('ESLint Output', eslintOutput);
+//     formatEslintOutputToMarkdown(eslintOutput);
+//   } catch (error) {
+//     if (error instanceof Error) {
+//       console.error("ESLint execution failed:", error.message);
+//       // Handle the error, e.g., exit the script, log the error to a file, etc.
+//     } else {
+//       console.error("Unexpected error occurred during ESLint execution.");
+//     }
+//   }
+//   // try {
+//   // } catch (error: any) {
+//   //   console.log('No ESLint config found.');
+//   //   try {
+//   //     console.log('Re-Running ESLint...');
+//   //     const eslintOutput: string = execSync(`cd ${ROOT_DIR} && touch .eslintrc.js && npx eslint . --config ./.eslintrc.js --format json`, { encoding: 'utf-8' });
+//   //
+//   //     console.log('ESLint Output 2', eslintOutput);
+//   //     formatEslintOutputToMarkdown(eslintOutput);
+//   //   } catch (error: any) {
+//   //     console.error('An error occurred:', error.message);
+//   //     process.exit(1);
+//   //   }
+//   // }
+// }
+// function eslintReporter(): void {
+//   console.log('Running ESLint...');
+//
+//   const currentDirectory = execSync(`pwd`, { encoding: 'utf-8' }).toString();
+//   console.log('Current Directory:', currentDirectory);
+//   console.log('ROOT_DIR:', ROOT_DIR);
+//
+//   try {
+//     const eslintOutput = execFileSync('npm', ['run', 'lint'], {
+//       cwd: currentDirectory,
+//       encoding: 'utf-8'
+//     }).toString();
+//
+//     console.log('ESLint Output:\n', eslintOutput);
+//     formatEslintOutputToMarkdown(eslintOutput);
+//   } catch (error) {
+//     if (error instanceof Error) {
+//       console.error("ESLint execution failed in directory:", currentDirectory);
+//       console.error("Error Message:", error.message);
+//     } else {
+//       console.error("Unexpected error occurred during ESLint execution.");
+//     }
+//   }
+//
+//   // try {
+//   // // const eslintOutput = execSync('npm run lint', {
+//   // const eslintOutput = execSync(`cd ${ROOT_DIR} && npx eslint .`, {
+//   // // const eslintOutput = execSync(`cd ${currentDirectory} && npx eslint .`, {
+//   // //   cwd: ROOT_DIR,
+//   //   encoding: 'utf-8',
+//   //   // shell: 'cmd.exe'
+//   // }).toString();
+//   //
+//   // //   const eslintOutput = execSync('npm run lint', { encoding: 'utf-8', cwd: currentDirectory }).toString();
+//   //   console.log('ESLint Output:\n', eslintOutput);
+//   //   formatEslintOutputToMarkdown(eslintOutput);
+//   // } catch (error) {
+//   //   if (error instanceof Error) {
+//   //     console.error("ESLint execution failed in directory:", currentDirectory);
+//   //     console.error("Error Message:", error.message);
+//   //   } else {
+//   //     console.error("Unexpected error occurred during ESLint execution.");
+//   //   }
+//   // }
+//
+//   // exec('npm run lint', { cwd: currentDirectory, shell: 'cmd.exe' }, (error, stdout, stderr) => {
+//   //   if (error) {
+//   //     console.error("ESLint execution failed:", error);
+//   //     console.error("Stderr:", stderr);
+//   //   } else {
+//   //     console.log("ESLint Output:\n", stdout);
+//   //     formatEslintOutputToMarkdown(stdout);
+//   //   }
+//   // });
+// }
 function eslintReporter(): void {
+  console.log('Running ESLint...');
+
+  const currentDirectory = execSync(`pwd`, { encoding: 'utf-8' }).toString();
+  console.log('Current Directory:', currentDirectory);
+
+  let filesToLint = [];
+  const filesPaths = ['./src/**/*.js', './tests/**/*.js', './src/**/*.ts', './tests/**/*.ts', './src/**/*.jsx', './tests/**/*.jsx', './src/**/*.tsx', './tests/**/*.tsx']; // Adjust paths as needed
+
+  const existingFiles = filesPaths.filter((file) => fs.existsSync(file));
+
+  // const filesToLint = ['./src/**/*.ts', './tests/**/*.ts', './src/**/*.tsx', './tests/**/*.tsx']; // Adjust paths as needed
+  // const filesToLint = ['./src/**/*.js', './tests/**/*.js', './src/**/*.ts', './tests/**/*.ts']; // Adjust paths as needed
+  filesToLint = ['./**/*.ts']; // Adjust paths as needed
+
+  getESLintReport(filesToLint)
+    .then((report) => {
+      console.log(JSON.stringify(report, null, 2));
+      // You can further process the report here, such as:
+      // - Generating a summary of errors and warnings
+      // - Writing the report to a file
+      // - Integrating with a CI/CD pipeline
+    });
+}
+
+async function getESLintReport(files: string | string[]) {
   try {
-    console.log('Running ESLint...');
-    const eslintOutput: string = execSync(`cd ${ROOT_DIR} && npx eslint . --format json `, { encoding: 'utf-8' });
+    const eslint = new ESLint({
+      fix: false, // Set to true to automatically fix fixable violations
+      cwd: ROOT_DIR,
+    });
 
-    formatEslintOutputToMarkdown(eslintOutput);
-  } catch (error: any) {
-    console.log('No ESLint config found.');
-    try {
-      console.log('Re-Running ESLint...');
-      const eslintOutput: string = execSync(`cd ${ROOT_DIR} && touch .eslintrc && npx eslint . --config ./.eslintrc --format json`, { encoding: 'utf-8' });
+    const results = await eslint.lintFiles(files);
 
-      formatEslintOutputToMarkdown(eslintOutput);
-    } catch (error: any) {
-      console.error('An error occurred:', error.message);
-      process.exit(1);
-    }
+    // Format results for better readability
+    const formattedResults = results.map((result) => ({
+      filePath: result.filePath,
+      errorCount: result.errorCount,
+      warningCount: result.warningCount,
+      messages: result.messages.map((message) => ({
+        message: message.message,
+        line: message.line,
+        column: message.column,
+        severity: message.severity,
+        ruleId: message.ruleId,
+      })),
+    }));
+
+    return formattedResults;
+  } catch (error) {
+    console.error('Error generating ESLint report:', error);
+    return [];
   }
 }
 
@@ -348,8 +470,14 @@ function codeQualityRunner(fullPathRootDir?: string): void {
     console.log('Running npm install...');
     execSync(`cd ${ROOT_DIR} && npm install`, { stdio: 'inherit' });
 
+    // console.log('ESLint check skipped.');
     console.log('ESLint check skipped.');
     // eslintReporter();
+    console.log('StyleLint check skipped.');
+    // checkStyleLint();
+    console.log('Strict Mode check skipped.');
+    // checkStrictMode();
+
     traverseFilesAndFoldersForIssues(ROOT_DIR);
     generateFullReport();
 

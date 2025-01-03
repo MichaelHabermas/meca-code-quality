@@ -7,7 +7,8 @@
   },
   "scripts": {
     "build": "tsc",
-    "prepare": "npm run build"
+    "prepare": "npm run build",
+    "lint": "eslint ."
   },
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -19,18 +20,19 @@
     "url": "https://github.com/MichaelHabermas/meca-code-quality.git"
   },
   "keywords": [
+    "meca-code-quality",
     "js",
-    "jsx",
     "ts",
-    "tsx",
     "code quality",
     "file count",
     "eslint",
     "stylelint",
-    "strict mode",
     "refs",
     "useRef",
-    "RxJs"
+    "RxJs",
+    "jsx",
+    "tsx",
+    "strict mode"
   ],
   "devDependencies": {
     "@eslint/js": "^9.17.0",

@@ -65,3 +65,7 @@ The generated markdown report includes:
 ## 🛡️ License
 
 Distributed under the MIT License. See `LICENSE` for more information.
+
+## NPMJS
+
+https://www.npmjs.com/package/meca-code-quality
