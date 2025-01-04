@@ -470,8 +470,9 @@ function generateFullReport(): void {
 function codeQualityRunner(fullPathRootDir?: string): void {
   try {
     ROOT_DIR = fullPathRootDir ?? ROOT_DIR;
-    console.log('Running npm install...');
-    execSync(`cd ${ROOT_DIR} && npm install`, { stdio: 'inherit' });
+    // console.log('Running npm install...');
+    // execSync(`cd ${ROOT_DIR} && npm install`, { stdio: 'inherit' });
+    execSync(`cd ${ROOT_DIR}`, { stdio: 'inherit' });
 
     console.log('ESLint check skipped.');
     // eslintReporter();
