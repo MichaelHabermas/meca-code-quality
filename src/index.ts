@@ -5,7 +5,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 // import * as ts from 'typescript';
 // import * as stylelint from 'stylelint';
-import { ESLint } from 'eslint';
+// import { ESLint } from 'eslint';
 
 /** Parse the command line */
 const args = process.argv.slice(2);
@@ -229,23 +229,23 @@ function traverseFilesAndFoldersForIssues(directoryPath: string): void {
  * Formats the ESLint results, and adds it to the markdown file
  * @param eslintJson
  */
-function formatEslintOutputToMarkdown(eslintJson: string): void {
-  try {
-    const parsedOutput: Array<IFile> = JSON.parse(eslintJson);
-
-    markdownContent += '## ESLint Summary\n\n';
-    const totalFiles = parsedOutput.length;
-    const filesWithIssues = parsedOutput.filter((file) => file.messages.length > 0).length;
-    const totalIssues = parsedOutput.reduce((sum, file) => sum + file.messages.length, 0);
-
-    markdownContent += `- **Total Files Analyzed**: ${totalFiles}\n`;
-    markdownContent += `- **Files with Issues**: ${filesWithIssues}\n`;
-    markdownContent += `- **Total Issues**: ${totalIssues}\n\n`;
-  } catch (error) {
-    console.error('Error formatting ESLint output:', error);
-    markdownContent += '## ESLint Analysis Report\n\nError parsing ESLint output.\n\n';
-  }
-}
+// function formatEslintOutputToMarkdown(eslintJson: string): void {
+//   try {
+//     const parsedOutput: Array<IFile> = JSON.parse(eslintJson);
+//
+//     markdownContent += '## ESLint Summary\n\n';
+//     const totalFiles = parsedOutput.length;
+//     const filesWithIssues = parsedOutput.filter((file) => file.messages.length > 0).length;
+//     const totalIssues = parsedOutput.reduce((sum, file) => sum + file.messages.length, 0);
+//
+//     markdownContent += `- **Total Files Analyzed**: ${totalFiles}\n`;
+//     markdownContent += `- **Files with Issues**: ${filesWithIssues}\n`;
+//     markdownContent += `- **Total Issues**: ${totalIssues}\n\n`;
+//   } catch (error) {
+//     console.error('Error formatting ESLint output:', error);
+//     markdownContent += '## ESLint Analysis Report\n\nError parsing ESLint output.\n\n';
+//   }
+// }
 
 /**
  * Formats the code quality results, and adds it to the markdown file
@@ -256,6 +256,8 @@ function formatFileIssuesToMarkdown(codeQualityJson: ICounter): void {
     const { fileCounter, filesLinesCounter, filesContentCounter, problemIssues } = codeQualityJson
 
     markdownContent += '## Code Quality Summary\n\n';
+
+    markdownContent += `- **Filename**: ${ROOT_DIR}\n`;
 
     markdownContent += '### File Counts\n\n';
     // js
@@ -388,60 +390,61 @@ function formatFileIssuesToMarkdown(codeQualityJson: ICounter): void {
 //   //   }
 //   // });
 // }
-function eslintReporter(): void {
-  console.log('Running ESLint...');
 
-  const currentDirectory = execSync(`pwd`, { encoding: 'utf-8' }).toString();
-  console.log('Current Directory:', currentDirectory);
+// function eslintReporter(): void {
+//   console.log('Running ESLint...');
+//
+//   const currentDirectory = execSync(`pwd`, { encoding: 'utf-8' }).toString();
+//   console.log('Current Directory:', currentDirectory);
+//
+//   let filesToLint = [];
+//   const filesPaths = ['./src/**/*.js', './tests/**/*.js', './src/**/*.ts', './tests/**/*.ts', './src/**/*.jsx', './tests/**/*.jsx', './src/**/*.tsx', './tests/**/*.tsx']; // Adjust paths as needed
+//
+//   const existingFiles = filesPaths.filter((file) => fs.existsSync(file));
+//
+//   // const filesToLint = ['./src/**/*.ts', './tests/**/*.ts', './src/**/*.tsx', './tests/**/*.tsx']; // Adjust paths as needed
+//   // const filesToLint = ['./src/**/*.js', './tests/**/*.js', './src/**/*.ts', './tests/**/*.ts']; // Adjust paths as needed
+//   filesToLint = ['./**/*.ts']; // Adjust paths as needed
+//
+//   getESLintReport(filesToLint)
+//     .then((report) => {
+//       console.log(JSON.stringify(report, null, 2));
+//       // You can further process the report here, such as:
+//       // - Generating a summary of errors and warnings
+//       // - Writing the report to a file
+//       // - Integrating with a CI/CD pipeline
+//     });
+// }
 
-  let filesToLint = [];
-  const filesPaths = ['./src/**/*.js', './tests/**/*.js', './src/**/*.ts', './tests/**/*.ts', './src/**/*.jsx', './tests/**/*.jsx', './src/**/*.tsx', './tests/**/*.tsx']; // Adjust paths as needed
-
-  const existingFiles = filesPaths.filter((file) => fs.existsSync(file));
-
-  // const filesToLint = ['./src/**/*.ts', './tests/**/*.ts', './src/**/*.tsx', './tests/**/*.tsx']; // Adjust paths as needed
-  // const filesToLint = ['./src/**/*.js', './tests/**/*.js', './src/**/*.ts', './tests/**/*.ts']; // Adjust paths as needed
-  filesToLint = ['./**/*.ts']; // Adjust paths as needed
-
-  getESLintReport(filesToLint)
-    .then((report) => {
-      console.log(JSON.stringify(report, null, 2));
-      // You can further process the report here, such as:
-      // - Generating a summary of errors and warnings
-      // - Writing the report to a file
-      // - Integrating with a CI/CD pipeline
-    });
-}
-
-async function getESLintReport(files: string | string[]) {
-  try {
-    const eslint = new ESLint({
-      fix: false, // Set to true to automatically fix fixable violations
-      cwd: ROOT_DIR,
-    });
-
-    const results = await eslint.lintFiles(files);
-
-    // Format results for better readability
-    const formattedResults = results.map((result) => ({
-      filePath: result.filePath,
-      errorCount: result.errorCount,
-      warningCount: result.warningCount,
-      messages: result.messages.map((message) => ({
-        message: message.message,
-        line: message.line,
-        column: message.column,
-        severity: message.severity,
-        ruleId: message.ruleId,
-      })),
-    }));
-
-    return formattedResults;
-  } catch (error) {
-    console.error('Error generating ESLint report:', error);
-    return [];
-  }
-}
+// async function getESLintReport(files: string | string[]) {
+//   try {
+//     const eslint = new ESLint({
+//       fix: false, // Set to true to automatically fix fixable violations
+//       cwd: ROOT_DIR,
+//     });
+//
+//     const results = await eslint.lintFiles(files);
+//
+//     // Format results for better readability
+//     const formattedResults = results.map((result) => ({
+//       filePath: result.filePath,
+//       errorCount: result.errorCount,
+//       warningCount: result.warningCount,
+//       messages: result.messages.map((message) => ({
+//         message: message.message,
+//         line: message.line,
+//         column: message.column,
+//         severity: message.severity,
+//         ruleId: message.ruleId,
+//       })),
+//     }));
+//
+//     return formattedResults;
+//   } catch (error) {
+//     console.error('Error generating ESLint report:', error);
+//     return [];
+//   }
+// }
 
 /**
  * Traverses all the files and folders recursively to check the current folder, and outputs a report on the code quality
@@ -470,7 +473,6 @@ function codeQualityRunner(fullPathRootDir?: string): void {
     console.log('Running npm install...');
     execSync(`cd ${ROOT_DIR} && npm install`, { stdio: 'inherit' });
 
-    // console.log('ESLint check skipped.');
     console.log('ESLint check skipped.');
     // eslintReporter();
     console.log('StyleLint check skipped.');
